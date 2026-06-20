@@ -13,3 +13,12 @@ body {
 #root {
   min-height: 100svh;
 }
+
+
+
+.instrument-serif-regular-italic {
+  font-family: "Instrument Serif", serif;
+  font-weight: 400;
+  font-style: italic;
+}
+

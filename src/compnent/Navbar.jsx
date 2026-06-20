@@ -94,7 +94,7 @@ export default function Navbar() {
         initial={{ y: -70, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className={`fixed top-0 left-0 right-0 z-50  transition-all  duration-500 bg-[#F2F1EE]
+        className={`fixed top-0 left-0 right-0 z-50  transition-all  duration-500 bg-black
           ${
             scrolled
               ? "shadow-[0_2px_0_rgba(214,255,1,0.6),0_8px_40px_rgba(0,0,0,0.1)]"
