@@ -4,8 +4,15 @@ import { RxCross1 } from "react-icons/rx";
 import { CiMenuFries } from "react-icons/ci";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdArrowOutward } from "react-icons/md";
+import { Link } from "react-router-dom";
 
-const NAV_LINKS = ["Home", "About", "Service", "Work", "Contact"];
+const NAV_LINKS = [
+  { name: "Home", path: "/" },
+  { name: "About", path: "/about" },
+  { name: "Service", path: "/service" },
+  { name: "Work", path: "/work" },
+  { name: "Contact", path: "/contact" },
+];
 
 function NavItem({ label }) {
   const [hovered, setHovered] = useState(false);
@@ -125,13 +132,15 @@ export default function Navbar() {
               <ul className="hidden md:flex items-center gap-1 list-none m-0 p-0">
                 {NAV_LINKS.map((link, i) => (
                   <motion.li
-                    key={link}
+                    key={link.name}
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + i * 0.07, duration: 0.4 }}
                     className="list-none"
                   >
-                    <NavItem label={link} />
+                    <Link to={link.path}>
+                      <NavItem label={link.name} />
+                    </Link>
                   </motion.li>
                 ))}
               </ul>
@@ -187,23 +196,24 @@ export default function Navbar() {
               <ul className="flex flex-col list-none mt-3 px-4 py-3 gap-1">
                 {NAV_LINKS.map((link, i) => (
                   <motion.li
-                    key={link}
+                    key={link.name}
                     initial={{ opacity: 0, x: -16 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.06, duration: 0.28 }}
                     className="list-none"
                   >
-                    <button
-                      onClick={() => setOpen(false)}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl
-                        text-sm font-medium text-black hover:text-[#D6ff01]
-                        bg-transparent border border-transparent cursor-pointer
-                        hover:bg-black hover:border-black
-                        transition-all duration-200 text-left"
-                    >
-                      <span className="w-[6px] h-[6px] rounded-full shrink-0 bg-[#D6ff01] border border-black/20" />
-                      {link}
-                    </button>
+                    <Link to={link.path} onClick={() => setOpen(false)}>
+                      <div
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl
+                          text-sm font-medium text-black hover:text-[#D6ff01]
+                          bg-transparent border border-transparent cursor-pointer
+                          hover:bg-black hover:border-black
+                          transition-all duration-200 text-left"
+                      >
+                        <span className="w-[6px] h-[6px] rounded-full shrink-0 bg-[#D6ff01] border border-black/20" />
+                        {link.name}
+                      </div>
+                    </Link>
                   </motion.li>
                 ))}
 
