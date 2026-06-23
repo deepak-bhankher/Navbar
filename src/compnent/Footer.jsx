@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const ICONS = [
   {
@@ -140,7 +141,8 @@ function PrimaryCta({ children = "Book A Free Meeting" }) {
         hover:shadow-[0_12px_36px_rgba(214,255,1,0.4)]
         transition-shadow duration-300"
     >
-      {children}
+      <Link to="/contact">{children}</Link>
+
       <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#15140F]">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none">
           <path

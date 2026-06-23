@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const SERVICES = [
   {
@@ -21,7 +22,15 @@ const SERVICES = [
     iconBg: "bg-gradient-to-br from-pink-500 via-red-500 to-yellow-400",
     icon: (
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
-        <rect x="3" y="3" width="18" height="18" rx="5" stroke="white" strokeWidth="2" />
+        <rect
+          x="3"
+          y="3"
+          width="18"
+          height="18"
+          rx="5"
+          stroke="white"
+          strokeWidth="2"
+        />
         <circle cx="12" cy="12" r="4" stroke="white" strokeWidth="2" />
         <circle cx="17.2" cy="6.8" r="1.1" fill="white" />
       </svg>
@@ -51,9 +60,16 @@ function PrimaryCta() {
       className="mt-2 inline-flex items-center gap-2 self-start rounded-lg text-black bg-[#D6ff01] px-6 py-3 text-sm font-semibold
         hover:bg-black hover:text-[#D6ff01] cursor-pointer transition-all hover:shadow-lg duration-300"
     >
-      Book A Free Meeting
+      <Link to="/contact">Book A Free Meeting</Link>
+
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none">
-        <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M7 17 17 7M9 7h8v8"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     </motion.button>
   );
@@ -64,24 +80,44 @@ function ServiceCardContent({ service }) {
 
   const textBlock = (
     <div className="flex flex-col justify-center p-8 sm:p-10 md:p-12">
-      <div className={`flex items-center justify-center w-14 h-14 rounded-2xl mb-6 ${service.iconBg} shadow-[0_8px_20px_rgba(0,0,0,0.15)]`}>
+      <div
+        className={`flex items-center justify-center w-14 h-14 rounded-2xl mb-6 ${service.iconBg} shadow-[0_8px_20px_rgba(0,0,0,0.15)]`}
+      >
         {service.icon}
       </div>
-      <h3 className="text-2xl sm:text-3xl font-bold text-[#15140F] mb-4">{service.title}</h3>
-      <p className="text-sm sm:text-base text-black/55 leading-relaxed mb-6 max-w-md">{service.desc}</p>
+      <h3 className="text-2xl sm:text-3xl font-bold text-[#15140F] mb-4">
+        {service.title}
+      </h3>
+      <p className="text-sm sm:text-base text-black/55 leading-relaxed mb-6 max-w-md">
+        {service.desc}
+      </p>
       <PrimaryCta />
     </div>
   );
 
   const imageBlock = (
     <div className="relative w-full h-56 sm:h-auto min-h-[260px] sm:min-h-[340px]">
-      <img src={service.image} alt={service.title} className="absolute inset-0 w-full h-full object-cover" />
+      <img
+        src={service.image}
+        alt={service.title}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
     </div>
   );
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2">
-      {imageFirst ? <>{imageBlock}{textBlock}</> : <>{textBlock}{imageBlock}</>}
+      {imageFirst ? (
+        <>
+          {imageBlock}
+          {textBlock}
+        </>
+      ) : (
+        <>
+          {textBlock}
+          {imageBlock}
+        </>
+      )}
     </div>
   );
 }
@@ -99,7 +135,11 @@ function StackingCard({ service, index, total }) {
 
   return (
     // Each wrapper is exactly 100vh tall — one "page" per card
-    <div ref={ref} className="h-screen sticky top-0" style={{ zIndex: index + 1 }}>
+    <div
+      ref={ref}
+      className="h-screen sticky top-0"
+      style={{ zIndex: index + 1 }}
+    >
       <div className="h-full flex items-center justify-center px-4 sm:px-6 bg-[#F4F2ED]">
         <motion.div
           style={isLast ? undefined : { scale }}
@@ -116,7 +156,12 @@ function Service2() {
   return (
     <section className="w-full">
       {SERVICES.map((service, i) => (
-        <StackingCard key={service.title} service={service} index={i} total={SERVICES.length} />
+        <StackingCard
+          key={service.title}
+          service={service}
+          index={i}
+          total={SERVICES.length}
+        />
       ))}
     </section>
   );

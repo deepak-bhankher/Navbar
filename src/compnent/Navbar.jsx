@@ -90,7 +90,10 @@ function CtaButton() {
         hover:shadow-[0_0_22px_rgba(214,255,1,0.5)]
         transition-all duration-300"
     >
+      <Link to="/contact">
       Book A Free Meeting
+      </Link>
+      
       <div className="relative w-[17px] h-[17px] overflow-hidden">
         <motion.span
           className="absolute inset-0 flex items-center justify-center"

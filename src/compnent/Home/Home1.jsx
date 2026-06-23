@@ -5,6 +5,7 @@ import { MdArrowOutward } from "react-icons/md";
 import { BsInstagram } from "react-icons/bs";
 import { FaFacebook, FaLinkedin } from "react-icons/fa";
 import { RiPinterestFill, RiSparkling2Fill } from "react-icons/ri";
+import { Link } from "react-router-dom";
 
 const CURVE_POINTS = [
   { left: "1.8%", top: "3.1%" },
@@ -260,8 +261,12 @@ export default function Home1() {
             transition={{ duration: 0.5, delay: 0.55 }}
             className="mt-7 sm:mt-9 flex flex-wrap items-center justify-center gap-3 w-full"
           >
-            <PrimaryCta>Book A Free Meeting</PrimaryCta>
-            <SecondaryCta>View Our Works</SecondaryCta>
+            <PrimaryCta>
+              <Link to="/contact">Book A Free Meeting</Link>
+            </PrimaryCta>
+            <SecondaryCta>
+              <Link to="/contact">View Our Works</Link>
+            </SecondaryCta>
           </motion.div>
         </div>
       </div>

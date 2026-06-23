@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const PLANS = [
   {
@@ -90,7 +91,7 @@ function PrimaryCta({ children }) {
       className="flex-shrink-0 rounded-full bg-[#15140F] cursor-pointer  px-5 py-2.5 text-sm font-semibold text-white
         hover:bg-[#D6ff01] hover:text-black hover:shadow-lg transition-all duration-300"
     >
-      {children}
+      <Link to="/contact">{children}</Link>
     </motion.button>
   );
 }
