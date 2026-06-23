@@ -52,7 +52,7 @@ function NavItem({ label, path, isDark }) {
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative px-4 py-2 cursor-pointer"
+      className="relative px-2 lg:px-4 py-2 cursor-pointer"
     >
       <AnimatePresence>
         {active && (
@@ -68,7 +68,7 @@ function NavItem({ label, path, isDark }) {
       <motion.span
         animate={{ color: active ? "#D6ff01" : defaultColor }}
         transition={{ duration: 0.2 }}
-        className="relative text-sm font-medium tracking-wide"
+        className="relative text-[13px] lg:text-sm font-medium tracking-wide whitespace-nowrap"
       >
         {label}
       </motion.span>
@@ -257,7 +257,7 @@ export default function Navbar() {
                   transition={{ delay: 0.25, duration: 0.22 }}
                   className="list-none mt-1 pt-3 border-t border-white/15"
                 >
-                  <button className="w-full flex justify-center gap-2 items-center py-3 rounded-xl cursor-pointer
+                  <button className="w-full flex justify-center gap-2 items-center  rounded-xl cursor-pointer
                     text-sm font-semibold text-black
                     bg-[#D6ff01] border border-black/10
                     shadow-[0_0_20px_rgba(214,255,1,0.45)]
