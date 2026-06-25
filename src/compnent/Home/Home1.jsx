@@ -104,7 +104,7 @@ function GlassIconCard({
             "linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.10) 45%, transparent 70%)",
           mixBlendMode: "screen",
         }}
-      />
+      />  
 
       {/* icon */}
       <div className="relative z-10">{icon}</div>
@@ -119,8 +119,6 @@ function GlassIconCard({
     </motion.div>
   );
 }
-
-
 
 function AnimatedArrow({ hovered, size = 16 }) {
   return (
@@ -263,7 +261,6 @@ export default function Home1() {
             viewBox="0 0 1100 650"
             fill="none"
           >
-
             <path
               d="M20 20 C 20 500, 280 620, 550 620 C 820 620, 1080 500, 1080 20"
               stroke="#ffffff55"
@@ -274,7 +271,6 @@ export default function Home1() {
           {/* Flow-only animation: icons curve points par continuously move honge.
               Rotation ko ab fixed step me di hui style se lock rakha hai (as per feedback rotation nahi chahiye). */}
           {(() => {
-
             const icons = [
               {
                 tone: "pinterest",
@@ -302,7 +298,7 @@ export default function Home1() {
                 <motion.div
                   key={it.tone}
                   className="absolute left-0 top-0"
-                  initial={false}
+                  initial={{ opacity: 0.98 }}
                   animate={{
                     left: CURVE_POINTS.map((p) => p.left),
                     top: CURVE_POINTS.map((p) => p.top),
@@ -324,7 +320,11 @@ export default function Home1() {
                     ease: "linear",
                     delay,
                   }}
-                  style={{ transform: "translate(-50%, -50%) translateZ(0)" }}
+                  style={{
+                    transform: "translate(-50%, -50%) translateZ(0)",
+                    willChange: "transform, left, top, opacity",
+                    zIndex: 30,
+                  }}
                 >
                   <GlassIconCard
                     icon={it.icon}
