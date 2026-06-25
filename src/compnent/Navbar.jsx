@@ -90,21 +90,23 @@ function CtaButton() {
         hover:shadow-[0_0_22px_rgba(214,255,1,0.5)]
         transition-all duration-300"
     >
-      <Link to="/contact">
-      Book A Free Meeting
-      </Link>
-      
+      <Link to="/contact">Book A Free Meeting</Link>
+
       <div className="relative w-[17px] h-[17px] overflow-hidden">
         <motion.span
           className="absolute inset-0 flex items-center justify-center"
-          animate={hovered ? { x: 17, y: -17, opacity: 0 } : { x: 0, y: 0, opacity: 1 }}
+          animate={
+            hovered ? { x: 17, y: -17, opacity: 0 } : { x: 0, y: 0, opacity: 1 }
+          }
           transition={{ duration: 0.2, ease: "easeInOut" }}
         >
           <MdArrowOutward size={17} />
         </motion.span>
         <motion.span
           className="absolute inset-0 flex items-center justify-center"
-          animate={hovered ? { x: 0, y: 0, opacity: 1 } : { x: -17, y: 17, opacity: 0 }}
+          animate={
+            hovered ? { x: 0, y: 0, opacity: 1 } : { x: -17, y: 17, opacity: 0 }
+          }
           transition={{ duration: 0.2, ease: "easeInOut" }}
         >
           <MdArrowOutward size={17} />
@@ -141,7 +143,6 @@ export default function Navbar() {
           }`}
         >
           <div className="flex items-center justify-between h-[62px]">
-
             {/* Logo */}
             <Link to="/">
               <motion.div
@@ -149,7 +150,11 @@ export default function Navbar() {
                 transition={{ type: "spring", stiffness: 300, damping: 18 }}
                 className="flex items-center gap-2 cursor-pointer"
               >
-                <img src="/logo.png" alt="CirklX" className="w-8 h-8 object-contain" />
+                <img
+                  src="/logo.png"
+                  alt="CirklX"
+                  className="w-8 h-8 object-contain"
+                />
                 <motion.span
                   animate={{ color: isDark ? "#ffffff" : "#15140F" }}
                   transition={{ duration: 0.3 }}
@@ -171,7 +176,11 @@ export default function Navbar() {
                   className="list-none"
                 >
                   <Link to={link.path}>
-                    <NavItem label={link.name} path={link.path} isDark={isDark} />
+                    <NavItem
+                      label={link.name}
+                      path={link.path}
+                      isDark={isDark}
+                    />
                   </Link>
                 </motion.li>
               ))}
@@ -224,7 +233,8 @@ export default function Navbar() {
             transition={{ duration: 0.25, ease: "easeOut" }}
             className="fixed top-[82px] left-4 right-4 z-40 md:hidden"
           >
-            <div className="bg-black/20 backdrop-blur-2xl rounded-2xl
+            <div
+              className="bg-black/20 backdrop-blur-2xl rounded-2xl
               border border-white/20
               shadow-[0_20px_60px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15),0_0_0_1px_rgba(214,255,1,0.1)]
               overflow-hidden"
@@ -239,7 +249,8 @@ export default function Navbar() {
                     className="list-none"
                   >
                     <Link to={link.path} onClick={() => setOpen(false)}>
-                      <div className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl
+                      <div
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl
                         text-sm font-medium
                         hover:bg-black/80 hover:text-[#D6ff01]
                         transition-all duration-200 ${isDark ? "text-white" : "text-[#15140F]"}`}
@@ -257,13 +268,16 @@ export default function Navbar() {
                   transition={{ delay: 0.25, duration: 0.22 }}
                   className="list-none mt-1 pt-3 border-t border-white/15"
                 >
-                  <button className="w-full flex justify-center gap-2 items-center  rounded-xl cursor-pointer
-                    text-sm font-semibold text-black
-                    bg-[#D6ff01] border border-black/10
-                    shadow-[0_0_20px_rgba(214,255,1,0.45)]
-                    hover:bg-black hover:text-[#D6ff01] transition-all duration-300"
+                  <button
+                    className="w-full flex justify-center items-center gap-2
+  py-3 px-6 rounded-xl cursor-pointer
+  text-base font-semibold text-black
+  bg-[#D6ff01] border border-black/10
+  shadow-[0_0_20px_rgba(214,255,1,0.45)]
+  hover:bg-black hover:text-[#D6ff01]
+  transition-all duration-300"
                   >
-                    Book A Free Meeting
+                    <Link to="/contact">Book A Free Meeting</Link>
                     <MdArrowOutward size={17} />
                   </button>
                 </motion.li>
