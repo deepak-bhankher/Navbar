@@ -17,7 +17,7 @@ const STEPS = [
     number: "03",
     title: "Upload & start seeing results from day one",
     desc: "Streamline your hiring process with our pre-qualified video editors, available for training and placement within a 2-week timeframe. No extra steps, no waiting around.",
-    image:"Home3.png"
+    image: "Home3.png",
   },
 ];
 

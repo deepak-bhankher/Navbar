@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 import { FaInstagram, FaPinterest, FaStar } from "react-icons/fa";
 import { MdArrowOutward } from "react-icons/md";
 import { BsInstagram } from "react-icons/bs";
-import { FaFacebook, FaLinkedin } from "react-icons/fa";
-import { RiPinterestFill, RiSparkling2Fill } from "react-icons/ri";
+import { FaFacebook } from "react-icons/fa";
+import { RiSparkling2Fill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 const CURVE_POINTS = [
@@ -36,58 +36,92 @@ const CURVE_POINTS = [
   { left: "1.8%", top: "3.1%" }, // loop back to the exact start point
 ];
 
-function FloatingBadge({
-  points,
+function GlassIconCard({
   icon,
-  delay = 0,
-  faded = false,
-  duration = 7,
+  tone = "default",
+  style,
+  className = "",
+  size = 44,
+  depth = 0,
+  opacity = 1,
+  rotate = 0,
 }) {
-  const baseOpacity = faded ? 0.35 : 1;
-  const n = points.length;
-
-  const fadeZone = 3; // how many points at each end participate in the fade
-  const opacityKeyframes = points.map((_, i) => {
-    const distFromStart = i;
-    const distFromEnd = n - 1 - i;
-    if (distFromStart < fadeZone) {
-      return baseOpacity * (distFromStart / fadeZone);
-    }
-    if (distFromEnd < fadeZone) {
-      return baseOpacity * (distFromEnd / fadeZone);
-    }
-    return baseOpacity;
-  });
+  const toneStyles =
+    tone === "instagram"
+      ? { accent: "#FF5A1F", accent2: "rgba(255,90,31,0.45)" }
+      : tone === "facebook"
+        ? { accent: "#1877F2", accent2: "rgba(24,119,242,0.45)" }
+        : tone === "pinterest"
+          ? { accent: "#D0002B", accent2: "rgba(208,0,43,0.45)" }
+          : tone === "spark"
+            ? { accent: "#ffffff", accent2: "rgba(255,255,255,0.35)" }
+            : { accent: "#D6ff01", accent2: "rgba(214,255,1,0.35)" };
 
   return (
     <motion.div
-      className="absolute hidden sm:flex items-center justify-center w-11 h-11 rounded-2xl
-        bg-white border border-black/5 shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
-      initial={{ opacity: 0 }}
-      animate={{
-        opacity: opacityKeyframes,
-        left: points.map((p) => p.left),
-        top: points.map((p) => p.top),
+      className={`absolute select-none pointer-events-none flex items-center justify-center rounded-2xl ${className}`}
+      style={{
+        width: size,
+        height: size,
+        opacity,
+        transform: `translate(-50%, -50%) translateZ(0) rotate(${rotate}deg)`,
+        filter: depth > 0 ? "saturate(1.05)" : "saturate(0.95)",
+        ...style,
       }}
-      transition={{
-        opacity: { duration, repeat: Infinity, ease: "linear", delay },
-        left: { duration, repeat: Infinity, ease: "linear", delay },
-        top: { duration, repeat: Infinity, ease: "linear", delay },
-      }}
-      style={{ transform: "translate(-50%, -50%)" }}
+      initial={false}
+      animate={false}
     >
-      {icon}
+      <div
+        className="absolute inset-0 rounded-2xl"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.08) 55%, rgba(255,255,255,0.03) 100%)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          border: "1px solid rgba(255,255,255,0.22)",
+          boxShadow:
+            depth > 0
+              ? `0 18px 40px rgba(0,0,0,0.55), 0 0 28px ${toneStyles.accent2}`
+              : `0 12px 26px rgba(0,0,0,0.42), 0 0 18px ${toneStyles.accent2}`,
+        }}
+      />
+
+      {/* top rim + glow */}
+      <div
+        className="absolute inset-x-0 top-0 h-1/2 rounded-t-2xl"
+        style={{
+          background: `radial-gradient(60% 90% at 50% -10%, ${toneStyles.accent2} 0%, rgba(255,255,255,0.15) 40%, transparent 70%)`,
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+        }}
+      />
+
+      {/* glass sheen */}
+      <div
+        className="absolute inset-0 rounded-2xl"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.10) 45%, transparent 70%)",
+          mixBlendMode: "screen",
+        }}
+      />
+
+      {/* icon */}
+      <div className="relative z-10">{icon}</div>
+
+      {/* subtle bottom dark fade */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-1/2 rounded-b-2xl"
+        style={{
+          background: "linear-gradient(to top, rgba(0,0,0,0.42), transparent)",
+        }}
+      />
     </motion.div>
   );
 }
 
-// ---- Animated arrow (same behavior as the navbar's CtaButton arrow) ----
-// Two overlapping MdArrowOutward icons inside a clipped box: on hover,
-// the current arrow slides up-right while fading out, and a second copy
-// slides in from down-left to replace it — giving the icon a "launching
-// off" motion instead of a static swap. `hovered` is passed down from
-// the parent button so this stays in sync with the button's own
-// whileHover state.
+
+
 function AnimatedArrow({ hovered, size = 16 }) {
   return (
     <div
@@ -120,17 +154,6 @@ function AnimatedArrow({ hovered, size = 16 }) {
   );
 }
 
-// ---- Glass button pair ----
-// `background` and `glowOpacity` are props so Primary/Secondary can each
-// use a different base + glow strength while sharing this exact
-// construction (top-down vertical glow, side glows, top rim, bottom dark
-// fade).
-//
-// CHANGED (this pass): GlassButtonBase now tracks its own hover state
-// (onMouseEnter/Leave) and passes it to AnimatedArrow instead of
-// rendering a static MdArrowOutward — this is what gives the arrow the
-// same "slide up-right and swap" motion the navbar's CtaButton already
-// has.
 function GlassButtonBase({
   children,
   withArrow,
@@ -225,6 +248,7 @@ export default function Home1() {
         muted
         loop
         playsInline
+        disablePictureInPicture
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source src="/video.mp4" type="video/mp4" />
@@ -232,46 +256,88 @@ export default function Home1() {
       {/* Dark overlay so text stays readable */}
       <div className="absolute inset-0 bg-black/40" />
 
-      <div className="absolute left-1/2 -translate-x-1/2 top-[200px] sm:top-[240px] md:top-[260px] w-full max-w-[95vw] sm:max-w-[110vw] md:w-[1100px] md:max-w-[150vw] h-[200px] sm:h-[230px] md:h-[260px] overflow-hidden pointer-events-none">
+      <div className="absolute left-1/2 -translate-x-1/2 top-[200px] sm:top-[240px] md:top-[260px] w-full max-w-[95vw] sm:max-w-[110vw] md:w-[1100px] md:max-w-[150vw] h-[260px] sm:h-[290px] md:h-[340px] overflow-hidden pointer-events-none">
         <div className="absolute top-[-80px] sm:top-[-120px] md:top-[-150px] left-0 w-full h-[650px]">
           <svg
             className="absolute inset-0 w-full h-full opacity-60"
             viewBox="0 0 1100 650"
             fill="none"
           >
+
             <path
               d="M20 20 C 20 500, 280 620, 550 620 C 820 620, 1080 500, 1080 20"
-              stroke="#ffffff22"
+              stroke="#ffffff55"
               strokeWidth="1"
             />
           </svg>
 
-          <FloatingBadge
-            points={CURVE_POINTS}
-            icon={<FaPinterest size={18} />}
-            delay={0}
-            duration={7}
-            faded
-          />
-          <FloatingBadge
-            points={CURVE_POINTS}
-            icon={<RiSparkling2Fill size={17} className="text-black" />}
-            delay={1.75}
-            duration={7}
-          />
-          <FloatingBadge
-            points={CURVE_POINTS}
-            icon={<FaInstagram size={18} className="text-[#FF5A1F]" />}
-            delay={3.5}
-            duration={7}
-          />
-          <FloatingBadge
-            points={CURVE_POINTS}
-            icon={<FaFacebook size={18} className="text-[#1877F2]" />}
-            delay={5.25}
-            duration={7}
-            faded
-          />
+          {/* Flow-only animation: icons curve points par continuously move honge.
+              Rotation ko ab fixed step me di hui style se lock rakha hai (as per feedback rotation nahi chahiye). */}
+          {(() => {
+
+            const icons = [
+              {
+                tone: "pinterest",
+                icon: <FaPinterest size={18} />,
+              },
+              {
+                tone: "spark",
+                icon: <RiSparkling2Fill size={17} className="text-black" />,
+              },
+              {
+                tone: "instagram",
+                icon: <FaInstagram size={18} className="text-[#FF5A1F]" />,
+              },
+              {
+                tone: "facebook",
+                icon: <FaFacebook size={18} className="text-[#1877F2]" />,
+              },
+            ];
+
+            return icons.map((it, iconIdx) => {
+              const duration = 7;
+              const delay = iconIdx * 1.2;
+
+              return (
+                <motion.div
+                  key={it.tone}
+                  className="absolute left-0 top-0"
+                  initial={false}
+                  animate={{
+                    left: CURVE_POINTS.map((p) => p.left),
+                    top: CURVE_POINTS.map((p) => p.top),
+                    opacity: CURVE_POINTS.map((_, i) => {
+                      const n = CURVE_POINTS.length;
+                      const fadeZone = 3;
+                      const distFromStart = i;
+                      const distFromEnd = n - 1 - i;
+                      if (distFromStart < fadeZone)
+                        return 0.15 + 0.85 * (distFromStart / fadeZone);
+                      if (distFromEnd < fadeZone)
+                        return 0.15 + 0.85 * (distFromEnd / fadeZone);
+                      return 1;
+                    }),
+                  }}
+                  transition={{
+                    duration,
+                    repeat: Infinity,
+                    ease: "linear",
+                    delay,
+                  }}
+                  style={{ transform: "translate(-50%, -50%) translateZ(0)" }}
+                >
+                  <GlassIconCard
+                    icon={it.icon}
+                    tone={it.tone}
+                    size={44}
+                    depth={iconIdx % 2 === 0 ? 1 : 0}
+                    opacity={1}
+                    rotate={0}
+                  />
+                </motion.div>
+              );
+            });
+          })()}
         </div>
       </div>
 
