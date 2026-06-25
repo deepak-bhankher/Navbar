@@ -46,9 +46,6 @@ function FloatingBadge({
   const baseOpacity = faded ? 0.35 : 1;
   const n = points.length;
 
-  // Build an opacity keyframe for every position keyframe: full opacity for
-  // most of the journey, ramping down to 0 over the last few points before
-  // the seam, and ramping back up over the first few points after it.
   const fadeZone = 3; // how many points at each end participate in the fade
   const opacityKeyframes = points.map((_, i) => {
     const distFromStart = i;
@@ -84,48 +81,135 @@ function FloatingBadge({
   );
 }
 
-// ---- Light glass pill (matches the "Book Free Demo" reference) ----
-function PrimaryCta({ children = "Book A Free Meeting" }) {
+// ---- Animated arrow (same behavior as the navbar's CtaButton arrow) ----
+// Two overlapping MdArrowOutward icons inside a clipped box: on hover,
+// the current arrow slides up-right while fading out, and a second copy
+// slides in from down-left to replace it — giving the icon a "launching
+// off" motion instead of a static swap. `hovered` is passed down from
+// the parent button so this stays in sync with the button's own
+// whileHover state.
+function AnimatedArrow({ hovered, size = 16 }) {
+  return (
+    <div
+      className="relative overflow-hidden"
+      style={{ width: size + 1, height: size + 1 }}
+    >
+      <motion.span
+        className="absolute inset-0 flex items-center justify-center"
+        animate={
+          hovered
+            ? { x: size + 1, y: -(size + 1), opacity: 0 }
+            : { x: 0, y: 0, opacity: 1 }
+        }
+        transition={{ duration: 0.2, ease: "easeInOut" }}
+      >
+        <MdArrowOutward size={size} />
+      </motion.span>
+      <motion.span
+        className="absolute inset-0 flex items-center justify-center"
+        animate={
+          hovered
+            ? { x: 0, y: 0, opacity: 1 }
+            : { x: -(size + 1), y: size + 1, opacity: 0 }
+        }
+        transition={{ duration: 0.2, ease: "easeInOut" }}
+      >
+        <MdArrowOutward size={size} />
+      </motion.span>
+    </div>
+  );
+}
+
+// ---- Glass button pair ----
+// `background` and `glowOpacity` are props so Primary/Secondary can each
+// use a different base + glow strength while sharing this exact
+// construction (top-down vertical glow, side glows, top rim, bottom dark
+// fade).
+//
+// CHANGED (this pass): GlassButtonBase now tracks its own hover state
+// (onMouseEnter/Leave) and passes it to AnimatedArrow instead of
+// rendering a static MdArrowOutward — this is what gives the arrow the
+// same "slide up-right and swap" motion the navbar's CtaButton already
+// has.
+function GlassButtonBase({
+  children,
+  withArrow,
+  background,
+  glowOpacity = 0.55,
+}) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <motion.button
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       whileHover={{ scale: 1.04, y: -3 }}
-      whileTap={{ scale: 0.97, y: 2 }}
+      whileTap={{ scale: 0.97, y: 1 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="relative px-7 py-3 flex gap-3 justify-center items-center rounded-full text-base font-semibold text-white cursor-pointer
-        bg-white/10 backdrop-blur-xl
-        border border-white/30
-        shadow-[0_8px_0_rgba(0,0,0,0.25),0_14px_28px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.3),inset_0_-1px_0_rgba(0,0,0,0.1),0_0_20px_rgba(255,255,255,0.1)]
-        hover:bg-white/18 hover:border-white/45
-        hover:shadow-[0_10px_0_rgba(0,0,0,0.25),0_18px_32px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.4),0_0_28px_rgba(255,255,255,0.15)]
-        active:shadow-[0_2px_0_rgba(0,0,0,0.25),0_4px_10px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)]
-        active:translate-y-[4px]
-        transition-all duration-150"
+      className="relative px-6 sm:px-7 md:px-8 py-3 sm:py-3.5 md:py-4 flex gap-2 sm:gap-2.5 justify-center items-center rounded-full
+        text-sm sm:text-base font-semibold text-white cursor-pointer whitespace-nowrap
+        overflow-hidden border border-white/10
+        shadow-[0_10px_26px_rgba(0,0,0,0.6)]
+        hover:shadow-[0_14px_32px_rgba(0,0,0,0.65)]
+        transition-shadow duration-300"
+      style={{ background }}
     >
-      {children}
-      <MdArrowOutward size={17} />
+      {/* Strong top-down vertical glow, centered, falling off sharply */}
+      <span
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: `radial-gradient(60% 70% at 50% -10%, rgba(255,255,255,${glowOpacity}) 0%, rgba(255,255,255,${glowOpacity * 0.33}) 45%, transparent 75%)`,
+        }}
+      />
+      {/* Faint dimmer glows at the left and right edges */}
+      <span
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(25% 80% at 6% 50%, rgba(255,255,255,0.12), transparent 70%), radial-gradient(25% 80% at 94% 50%, rgba(255,255,255,0.12), transparent 70%)",
+        }}
+      />
+      {/* Bright rim tracing the rounded top arc specifically */}
+      <span className="pointer-events-none absolute inset-0 rounded-full shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.5)]" />
+      {/* Very dark base toward the bottom for contrast against the glow */}
+      <span
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 rounded-b-full"
+        style={{
+          background: "linear-gradient(to top, rgba(0,0,0,0.45), transparent)",
+        }}
+      />
+
+      <span className="relative z-10 flex items-center gap-2 sm:gap-2.5">
+        {children}
+        {withArrow && <AnimatedArrow hovered={hovered} size={16} />}
+      </span>
     </motion.button>
   );
 }
 
-// ---- Dark glass pill (matches the "Get Started Free" reference) ----
-function SecondaryCta({ children = "Get Started Free" }) {
+// ---- Primary: lighter glass, brighter top glow ----
+function PrimaryGlassCta({ children, withArrow = false }) {
   return (
-    <motion.button
-      whileHover={{ scale: 1.04, y: -3 }}
-      whileTap={{ scale: 0.97, y: 2 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="relative px-8 py-4 flex gap-3 justify-center items-center rounded-full text-base font-semibold text-white cursor-pointer
-        bg-gradient-to-b from-[#3a3a3a] to-[#0a0a0a]
-        backdrop-blur-xl
-        border border-black/60
-        shadow-[0_8px_0_rgba(0,0,0,0.45),0_14px_28px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.4)]
-        hover:shadow-[0_10px_0_rgba(0,0,0,0.45),0_18px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.35),inset_0_-2px_4px_rgba(0,0,0,0.4)]
-        active:shadow-[0_2px_0_rgba(0,0,0,0.45),0_4px_10px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]
-        active:translate-y-[4px]
-        transition-all duration-150"
+    <GlassButtonBase
+      withArrow={withArrow}
+      background="rgb(55,55,55)"
+      glowOpacity={0.75}
     >
       {children}
-    </motion.button>
+    </GlassButtonBase>
+  );
+}
+
+// ---- Secondary: darker glass, dimmer top glow ----
+function SecondaryGlassCta({ children, withArrow = false }) {
+  return (
+    <GlassButtonBase
+      withArrow={withArrow}
+      background="rgb(16,16,16)"
+      glowOpacity={0.4}
+    >
+      {children}
+    </GlassButtonBase>
   );
 }
 
@@ -146,7 +230,8 @@ export default function Home1() {
         <source src="/video.mp4" type="video/mp4" />
       </video>
       {/* Dark overlay so text stays readable */}
-      <div className="absolute inset-0" />
+      <div className="absolute inset-0 bg-black/40" />
+
       <div className="absolute left-1/2 -translate-x-1/2 top-[200px] sm:top-[240px] md:top-[260px] w-full max-w-[95vw] sm:max-w-[110vw] md:w-[1100px] md:max-w-[150vw] h-[200px] sm:h-[230px] md:h-[260px] overflow-hidden pointer-events-none">
         <div className="absolute top-[-80px] sm:top-[-120px] md:top-[-150px] left-0 w-full h-[650px]">
           <svg
@@ -190,7 +275,6 @@ export default function Home1() {
         </div>
       </div>
 
-      {/* CHANGED: two nested divs now, matching Navbar's md:px-10 + md:max-w-5xl structure */}
       <div className="relative z-10 md:px-10">
         <div className="md:max-w-5xl md:mx-auto px-6 text-center flex flex-col items-center">
           <motion.div
@@ -230,13 +314,56 @@ export default function Home1() {
                   stiffness: 200,
                 }}
                 whileHover={{ rotate: 8, scale: 1.08 }}
-                className="inline-flex items-center justify-center w-[32px] h-[32px] sm:w-[44px] sm:h-[44px] md:w-[56px] md:h-[56px]
-                  rounded-xl sm:rounded-2xl text-[#D6ff01] shadow-[0_8px_20px_rgba(255,90,31,0.35)]"
+                className="relative inline-flex items-center justify-center w-[32px] h-[32px] sm:w-[44px] sm:h-[44px] md:w-[56px] md:h-[56px]
+                  rounded-xl sm:rounded-2xl overflow-hidden
+                  border border-white/15
+                  shadow-[0_0_22px_rgba(255,90,31,0.5),0_8px_20px_rgba(0,0,0,0.45)]"
+                style={{
+                  background: "rgba(110,110,110,0.45)",
+                  backdropFilter: "blur(8px)",
+                }}
               >
-                <BsInstagram size={16} className="sm:hidden" />
-                <BsInstagram size={22} className="hidden sm:block md:hidden" />
-                <BsInstagram size={26} className="hidden md:block" />
+                {/* Warm glow bleeding through from behind the glass */}
+                <span
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 50% 65%, rgba(255,90,31,0.55), transparent 70%)",
+                  }}
+                />
+                {/* Diagonal glass sheen — same direction as PrimaryGlassCta */}
+                <span
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 45%, transparent 70%)",
+                  }}
+                />
+                {/* Bright top rim */}
+                <span className="absolute inset-0 rounded-xl sm:rounded-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]" />
+                {/* Soft dark fade at the bottom for depth */}
+                <span
+                  className="absolute inset-x-0 bottom-0 h-2/5"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.3), transparent)",
+                  }}
+                />
+
+                <BsInstagram
+                  size={16}
+                  className="relative z-10 text-[#D6ff01] sm:hidden"
+                />
+                <BsInstagram
+                  size={22}
+                  className="relative z-10 text-[#D6ff01] hidden sm:block md:hidden"
+                />
+                <BsInstagram
+                  size={26}
+                  className="relative z-10 text-[#D6ff01] hidden md:block"
+                />
               </motion.span>
+
               <span
                 className="font-light italic text-[#D6ff01]"
                 style={{ fontFamily: "Instrument Serif , serif" }}
@@ -261,12 +388,12 @@ export default function Home1() {
             transition={{ duration: 0.5, delay: 0.55 }}
             className="mt-7 sm:mt-9 flex flex-wrap items-center justify-center gap-3 w-full"
           >
-            <PrimaryCta>
+            <PrimaryGlassCta withArrow>
               <Link to="/contact">Book A Free Meeting</Link>
-            </PrimaryCta>
-            <SecondaryCta>
+            </PrimaryGlassCta>
+            <SecondaryGlassCta>
               <Link to="/contact">View Our Works</Link>
-            </SecondaryCta>
+            </SecondaryGlassCta>
           </motion.div>
         </div>
       </div>
