@@ -275,7 +275,7 @@ export default function Navbar() {
   bg-[#D6ff01] border border-black/10
   shadow-[0_0_20px_rgba(214,255,1,0.45)]
   hover:bg-black hover:text-[#D6ff01]
-  transition-all duration-300"
+  transition-all duration-300" onClick={() => setOpen(false)}
                   >
                     <Link to="/contact">Book A Free Meeting</Link>
                     <MdArrowOutward size={17} />
