@@ -104,7 +104,7 @@ function GlassIconCard({
             "linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.10) 45%, transparent 70%)",
           mixBlendMode: "screen",
         }}
-      />  
+      />
 
       {/* icon */}
       <div className="relative z-10">{icon}</div>
@@ -254,7 +254,7 @@ export default function Home1() {
       {/* Dark overlay so text stays readable */}
       <div className="absolute inset-0 bg-black/40" />
 
-      <div className="absolute left-1/2 -translate-x-1/2 top-[200px] sm:top-[240px] md:top-[260px] w-full max-w-[95vw] sm:max-w-[110vw] md:w-[1100px] md:max-w-[150vw] h-[260px] sm:h-[290px] md:h-[340px] overflow-hidden pointer-events-none">
+      <div className="absolute left-1/2 -translate-x-1/2 top-[200px] sm:top-[240px] md:top-[260px] w-full max-w-[95vw] sm:max-w-[110vw] md:w-[1100px] md:max-w-[150vw] h-[600px] sm:h-[630px] md:h-[660px] overflow-hidden pointer-events-none">
         <div className="absolute top-[-80px] sm:top-[-120px] md:top-[-150px] left-0 w-full h-[650px]">
           <svg
             className="absolute inset-0 w-full h-full opacity-60"
@@ -269,7 +269,9 @@ export default function Home1() {
           </svg>
 
           {/* Flow-only animation: icons curve points par continuously move honge.
-              Rotation ko ab fixed step me di hui style se lock rakha hai (as per feedback rotation nahi chahiye). */}
+              Rotation ko ab fixed step me di hui style se lock rakha hai (as per feedback rotation nahi chahiye).
+              Opacity ab ek bada fadeZone aur ease curve use karta hai taaki fade smooth/gradual lage,
+              ek dum se gayab hone jaisa na lage. */}
           {(() => {
             const icons = [
               {
@@ -298,19 +300,20 @@ export default function Home1() {
                 <motion.div
                   key={it.tone}
                   className="absolute left-0 top-0"
-                  initial={{ opacity: 0.98 }}
+                  initial={{ opacity: 1 }}
                   animate={{
                     left: CURVE_POINTS.map((p) => p.left),
                     top: CURVE_POINTS.map((p) => p.top),
                     opacity: CURVE_POINTS.map((_, i) => {
                       const n = CURVE_POINTS.length;
-                      const fadeZone = 3;
-                      const distFromStart = i;
+                      // Only fade out near the very end (right-top corner,
+                      // just before it loops back to the start). No fade-in
+                      // at the start — icon stays fully visible everywhere
+                      // else on the curve.
+                      const fadeZone = 5;
                       const distFromEnd = n - 1 - i;
-                      if (distFromStart < fadeZone)
-                        return 0.15 + 0.85 * (distFromStart / fadeZone);
                       if (distFromEnd < fadeZone)
-                        return 0.15 + 0.85 * (distFromEnd / fadeZone);
+                        return Math.pow(distFromEnd / fadeZone, 1.5);
                       return 1;
                     }),
                   }}
@@ -363,9 +366,9 @@ export default function Home1() {
           >
             Agency that makes your
             <br />
-            <span className="inline-flex items-center gap-3 align-middle">
+            <span className="inline-flex items-center align-middle">
               <span
-                className="italic font-light text-[#D6ff01]"
+                className="italic font-light text-[#D6ff01] mr-2"
                 style={{ fontFamily: "Instrument Serif , serif" }}
               >
                 videos & reels
@@ -431,7 +434,7 @@ export default function Home1() {
               </motion.span>
 
               <span
-                className="font-light italic text-[#D6ff01]"
+                className="font-light italic text-[#D6ff01] ml-2"
                 style={{ fontFamily: "Instrument Serif , serif" }}
               >
                 viral
