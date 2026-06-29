@@ -260,7 +260,7 @@ export default function Home1() {
   return (
     <section
       data-theme="dark"
-      className="relative w-full min-h-screen pt-24 sm:pt-32 md:pt-[140px] pb-16 sm:pb-24 overflow-hidden"
+      className="relative w-full sm:min-h-screen pt-24 sm:pt-32 md:pt-[140px] pb-16 sm:pb-24 overflow-hidden"
     >
       {/* Background video */}
       <video
@@ -276,8 +276,8 @@ export default function Home1() {
       {/* Dark overlay so text stays readable */}
       <div className="absolute inset-0 bg-black/40" />
 
-      <div className="absolute left-1/2 -translate-x-1/2 top-[110px] sm:top-[240px] md:top-[260px] w-full max-w-[95vw] sm:max-w-[110vw] md:w-[1100px] md:max-w-[150vw] h-[410px] sm:h-[630px] md:h-[660px] overflow-hidden pointer-events-none">
-        <div className="absolute top-[20px] sm:top-[-120px] md:top-[-150px] left-0 w-full h-[380px] sm:h-[650px] md:h-[650px]">
+      <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-[380px] sm:top-[240px] md:top-[260px] w-full max-w-[95vw] sm:max-w-[110vw] md:w-[1100px] md:max-w-[150vw] h-[220px] sm:h-[630px] md:h-[660px] overflow-hidden pointer-events-none">
+        <div className="absolute top-[16px] sm:top-[-120px] md:top-[-150px] left-0 w-full h-[190px] sm:h-[650px] md:h-[650px]">
           <svg
             className="absolute inset-0 w-full h-full opacity-60"
             viewBox="0 0 1100 650"
@@ -323,18 +323,25 @@ export default function Home1() {
                 <motion.div
                   key={it.tone}
                   className="absolute left-0 top-0"
-                  initial={{ opacity: 1 }}
+                  initial={{ opacity: 0 }}
                   animate={{
                     left: CURVE_POINTS.map((p) => p.left),
                     top: CURVE_POINTS.map((p) => p.top),
                     opacity: CURVE_POINTS.map((_, i) => {
                       const n = CURVE_POINTS.length;
-                      // Only fade out near the very end (right-top corner,
-                      // just before it loops back to the start). No fade-in
-                      // at the start — icon stays fully visible everywhere
-                      // else on the curve.
+                      // Fade both at the start (left-top, just appearing)
+                      // and at the end (right-top, just before the loop
+                      // restarts). Matching fade zones on both ends mean
+                      // the icon is never abruptly visible/invisible —
+                      // it fades out completely before the loop resets,
+                      // then fades back in just as gradually, so the
+                      // "jump" from right-top back to left-top happens
+                      // while the icon is invisible.
                       const fadeZone = 5;
+                      const distFromStart = i;
                       const distFromEnd = n - 1 - i;
+                      if (distFromStart < fadeZone)
+                        return Math.pow(distFromStart / fadeZone, 1.5);
                       if (distFromEnd < fadeZone)
                         return Math.pow(distFromEnd / fadeZone, 1.5);
                       return 1;

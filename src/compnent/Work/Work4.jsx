@@ -168,6 +168,44 @@ function ConnectorPath({
   );
 }
 
+// Reusable center node (dot cloud + glass circle + airplane icon + label)
+// so the exact same visual appears on both the desktop mind-map and the
+// mobile stacked layout, just at different sizes.
+function CenterNode({ wrapSize = "w-[110px] h-[110px] sm:w-[140px] sm:h-[140px] md:w-[160px] md:h-[160px]", circleSize = "w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16", iconSize = 22, labelSize = "text-base sm:text-lg", dotCount = 180 }) {
+  return (
+    <div className="flex flex-col items-center">
+      <div className={`relative ${wrapSize} flex items-center justify-center`}>
+        <div
+          className="absolute inset-0"
+          style={{ transform: "translateY(10px) scale(1.15)" }}
+        >
+          <DotCloud count={dotCount} />
+        </div>
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className={`relative z-10 flex items-center justify-center ${circleSize} rounded-full`}
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%)",
+            backdropFilter: "blur(8px)",
+            border: "1px solid rgba(255,255,255,0.18)",
+            boxShadow: `0 0 26px rgba(214,255,1,0.35), 0 10px 24px rgba(0,0,0,0.5)`,
+          }}
+        >
+          <BsFillAirplaneEnginesFill
+            className="absolute left-1/2 -translate-x-1/2 text-[#D6ff01]"
+            size={iconSize}
+          />
+        </motion.div>
+      </div>
+      <span className={`mt-3 ${labelSize} font-bold text-white`}>CirklX</span>
+    </div>
+  );
+}
+
 export default function Work4() {
   // Viewbox is a fixed coordinate space; the SVG scales responsively
   // via width/height: 100%, so all paths stay proportional at any size.
@@ -201,9 +239,11 @@ export default function Work4() {
       className="relative w-full bg-black overflow-hidden py-20 sm:py-28"
     >
       <div className="relative w-full max-w-[1200px] mx-auto px-4 sm:px-6">
-        {/* ---- SVG connector layer ---- */}
+        {/* ====================================================
+            DESKTOP / TABLET (md and up): horizontal mind-map
+            ==================================================== */}
         <div
-          className="relative w-full"
+          className="relative w-full hidden md:block"
           style={{ aspectRatio: `${VB_W}/${VB_H}` }}
         >
           <svg
@@ -264,37 +304,31 @@ export default function Work4() {
               transform: "translate(-50%, -50%)",
             }}
           >
-            <div className="relative w-[110px] h-[110px] sm:w-[140px] sm:h-[140px] md:w-[160px] md:h-[160px] flex items-center justify-center">
+            <CenterNode />
+          </div>
+
+          {/* ---- Left outer stat pills (restored — were missing) ---- */}
+          {LEFT_STATS.map((s, i) => {
+            const a = leftAnchors[i];
+            return (
               <div
-                className="absolute inset-0"
-                style={{ transform: "translateY(10px) scale(1.15)" }}
-              >
-                <DotCloud count={180} />
-              </div>
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                whileInView={{ scale: 1, opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="relative z-10 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full"
+                key={s.label}
+                className="absolute"
                 style={{
-                  background:
-                    "linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%)",
-                  backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  boxShadow: `0 0 26px rgba(214,255,1,0.35), 0 10px 24px rgba(0,0,0,0.5)`,
+                  left: `${(a.x / VB_W) * 100}%`,
+                  top: `${(a.y / VB_H) * 100}%`,
+                  transform: "translate(0, -50%)",
                 }}
               >
-                <BsFillAirplaneEnginesFill
-                  className="absolute left-1/2  -translate-x-1/2  text-[#D6ff01]"
-                  size={22}
+                <StatPill
+                  label={s.label}
+                  value={s.value}
+                  icon={s.icon}
+                  align="left"
                 />
-              </motion.div>
-            </div>
-            <span className="mt-3 text-base sm:text-lg font-bold text-white">
-              CirklX
-            </span>
-          </div>
+              </div>
+            );
+          })}
 
           {/* ---- Left intermediate merge pill ---- */}
           <div
@@ -343,6 +377,90 @@ export default function Work4() {
               </div>
             );
           })}
+        </div>
+
+        {/* ====================================================
+            MOBILE (below md): vertical stacked layout.
+            The wide horizontal mind-map doesn't fit narrow screens —
+            pill text and merge points would collide. Instead: the 3
+            feed-in cards stack at the top with one animated vertical
+            glow line flowing down into the rocket, then a static line
+            continues down to a 2-column grid of the 4 result cards.
+            ==================================================== */}
+        <div className="md:hidden relative flex flex-col items-center">
+          {/* Single continuous vertical connector line spanning the whole
+              mobile stack (top of feed-in cards -> through the rocket ->
+              down to the result cards), with one animated glow trail that
+              travels the FULL length and loops — same technique as the
+              desktop ConnectorPath, just vertical instead of horizontal.
+              This is what makes the glow keep going past the rocket
+              instead of stopping/resetting there. */}
+          <svg
+            className="absolute left-1/2 -translate-x-1/2 top-0 w-[3px] h-full pointer-events-none"
+            viewBox="0 0 3 100"
+            preserveAspectRatio="none"
+            style={{ zIndex: 0 }}
+          >
+            <line x1="1.5" y1="0" x2="1.5" y2="100" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+            <motion.line
+              x1="1.5"
+              y1="0"
+              x2="1.5"
+              y2="100"
+              stroke={ACCENT}
+              strokeWidth="2"
+              strokeLinecap="round"
+              pathLength={1}
+              strokeDasharray="0.1 1"
+              initial={{ strokeDashoffset: 1 }}
+              animate={{ strokeDashoffset: 0 }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
+              style={{ filter: `drop-shadow(0 0 5px ${ACCENT})` }}
+            />
+          </svg>
+
+          {/* Top: feed-in cards */}
+          <div className="relative z-10 flex flex-col items-center gap-3 w-full max-w-[280px] bg-black">
+            {LEFT_STATS.map((s) => (
+              <StatPill
+                key={s.label}
+                label={s.label}
+                value={s.value}
+                icon={s.icon}
+                align="left"
+              />
+            ))}
+          </div>
+
+          <div className="h-12" />
+
+          {/* Center: same rocket + dot cloud, scaled down */}
+          <div className="relative z-10">
+            <CenterNode
+              wrapSize="w-[100px] h-[100px]"
+              circleSize="w-14 h-14"
+              iconSize={20}
+              labelSize="text-base"
+              dotCount={130}
+            />
+          </div>
+
+          <div className="h-12" />
+
+          {/* Bottom: all 4 result stats (incl. the merge "Followers" pill) in a 2x2 grid */}
+          <div className="relative z-10 grid grid-cols-2 gap-2.5 w-full max-w-[320px] bg-black">
+            <StatPill label="FOLLOWERS" value="2K+" icon="users" align="left" />
+            {RIGHT_STATS.map((s) => (
+              <StatPill
+                key={s.label}
+                label={s.label}
+                value={s.value}
+                icon={s.icon}
+                tone={s.tone}
+                align="left"
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
