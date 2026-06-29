@@ -4,23 +4,25 @@ import { AiOutlineInstagram } from "react-icons/ai";
 import { AiOutlineTikTok } from "react-icons/ai";
 
 // First 3 cards: big centered platform icon + 2-line title.
+// Each card now carries an `accent` rgba used for the glow shadow under
+// the glass sheen, tone-matched to the icon's own gradient.
 const PLATFORM_CARDS = [
   {
     title: ["Youtube", "Shots"],
     iconBg: "bg-gradient-to-br from-red-500 to-red-700",
-    shadow: "shadow-[0_10px_28px_rgba(220,38,38,0.45)]",
+    accent: "rgba(220,38,38,0.45)",
     icon: <AiOutlineYoutube size={52} className="text-white" />,
   },
   {
     title: ["Instagram", "Reels"],
     iconBg: "bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400",
-    shadow: "shadow-[0_10px_28px_rgba(236,72,153,0.45)]",
+    accent: "rgba(236,72,153,0.45)",
     icon: <AiOutlineInstagram size={52} className="text-white" />,
   },
   {
     title: ["TikTok", "Videos"],
     iconBg: "bg-[#010101]",
-    shadow: "shadow-[0_10px_28px_rgba(0,0,0,0.35)]",
+    accent: "rgba(0,0,0,0.35)",
     icon: <AiOutlineTikTok size={52} className="text-white" />,
   },
 ];
@@ -30,7 +32,7 @@ const SERVICE_CARDS = [
   {
     title: ["Video Edits", "& Content Creation"],
     iconBg: "bg-gradient-to-br from-violet-500 to-indigo-600",
-    shadow: "shadow-[0_8px_20px_rgba(109,40,217,0.4)]",
+    accent: "rgba(109,40,217,0.4)",
     icon: (
       <svg viewBox="0 0 24 24" width="26" height="26" fill="none">
         <rect
@@ -60,7 +62,7 @@ const SERVICE_CARDS = [
   {
     title: ["Motion Graphics", "& Animation Design"],
     iconBg: "bg-gradient-to-br from-emerald-400 to-teal-600",
-    shadow: "shadow-[0_8px_20px_rgba(16,185,129,0.4)]",
+    accent: "rgba(16,185,129,0.4)",
     icon: (
       <svg viewBox="0 0 24 24" width="26" height="26" fill="none">
         <circle cx="12" cy="12" r="3" fill="white" />
@@ -80,6 +82,55 @@ const SERVICE_CARDS = [
     ),
   },
 ];
+
+// Reusable glass-effect icon badge: keeps the card's own colored
+// gradient background, then layers a frosted glass sheen on top — a
+// soft top-rim highlight tinted to the icon's accent color, a diagonal
+// glass sheen (screen blend), and a gentle bottom shadow for depth —
+// the same construction as the hero's GlassIconCard, sized for these
+// square badges and tuned for the light cream section background
+// (slightly stronger glow since there's no dark backdrop to bloom into).
+function GlassBadge({ children, iconBg, accent, sizeClass, radiusClass }) {
+  return (
+    <div
+      className={`relative flex items-center justify-center overflow-hidden ${sizeClass} ${radiusClass} ${iconBg}`}
+      style={{
+        boxShadow: `0 10px 28px ${accent}, 0 2px 6px rgba(0,0,0,0.15)`,
+      }}
+    >
+      {/* top rim glow, tinted to the icon's own accent */}
+      <div
+        className="absolute inset-x-0 top-0 h-1/2 pointer-events-none"
+        style={{
+          background: `radial-gradient(60% 90% at 50% -10%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 45%, transparent 75%)`,
+        }}
+      />
+      {/* diagonal glass sheen */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.08) 45%, transparent 70%)",
+          mixBlendMode: "screen",
+        }}
+      />
+      {/* thin glass border for edge definition */}
+      <div
+        className={`absolute inset-0 pointer-events-none ${radiusClass}`}
+        style={{ border: "1px solid rgba(255,255,255,0.35)" }}
+      />
+      {/* icon */}
+      <div className="relative z-10">{children}</div>
+      {/* soft bottom dark fade for depth */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none"
+        style={{
+          background: "linear-gradient(to top, rgba(0,0,0,0.22), transparent)",
+        }}
+      />
+    </div>
+  );
+}
 
 function PlatformCard({ card, index }) {
   return (
@@ -103,9 +154,15 @@ function PlatformCard({ card, index }) {
             delay: index * 0.1 + 0.15,
             ease: "easeOut",
           }}
-          className={`flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-3xl ${card.iconBg} ${card.shadow}`}
         >
-          {card.icon}
+          <GlassBadge
+            iconBg={card.iconBg}
+            accent={card.accent}
+            sizeClass="w-24 h-24 sm:w-28 sm:h-28"
+            radiusClass="rounded-3xl"
+          >
+            {card.icon}
+          </GlassBadge>
         </motion.div>
       </div>
       <h3 className="text-2xl sm:text-[1.7rem] font-medium text-[#15140F] leading-tight">
@@ -143,9 +200,15 @@ function ServiceCard({ card, index }) {
           delay: 0.3 + index * 0.1 + 0.1,
           ease: "easeOut",
         }}
-        className={`flex items-center justify-center w-14 h-14 rounded-2xl ${card.iconBg} ${card.shadow}`}
       >
-        {card.icon}
+        <GlassBadge
+          iconBg={card.iconBg}
+          accent={card.accent}
+          sizeClass="w-14 h-14"
+          radiusClass="rounded-2xl"
+        >
+          {card.icon}
+        </GlassBadge>
       </motion.div>
 
       <h3 className="text-xl sm:text-2xl font-medium text-[#15140F] leading-tight mt-8">

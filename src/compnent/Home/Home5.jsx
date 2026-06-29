@@ -88,8 +88,8 @@ function PrimaryCta({ children }) {
       whileHover={{ scale: 1.04, y: -2 }}
       whileTap={{ scale: 0.96 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="flex-shrink-0 rounded-full bg-[#15140F] cursor-pointer  px-5 py-2.5 text-sm font-semibold text-white
-        hover:bg-[#D6ff01] hover:text-black hover:shadow-lg transition-all duration-300"
+      className=" rounded-lg hover:shadow-[0_0_20px_rgba(214,255,1,0.45)] bg-[#D6ff01] cursor-pointer border border-gray-300  px-5 py-2.5 text-sm font-semibold text-black
+        hover:bg-[#000000] hover:text-[#D6ff01] hover:border hover:border-[#D6ff01] transition-all duration-300"
     >
       <Link to="/contact">{children}</Link>
     </motion.button>
