@@ -63,70 +63,65 @@ const ICONS = [
   },
 ];
 
-const R = 480;
-const VISIBLE_HEIGHT = 110;
-const ROTATION_DURATION = 30;
-const ICON_SPACING_DEG = 92; // slightly more than the ~79° visible span -> small gap, with overlap on entry/exit
+const R = 520;
+const VISIBLE_HEIGHT = 130;
+const ROTATION_DURATION = 36;
+const ICON_SPACING_DEG = 90;
 
 // Glass icon card matching the Home page's GlassIconCard treatment:
 // dark frosted-glass background, top rim glow tinted to the icon's brand
 // color, diagonal glass sheen, and a soft bottom shadow for depth.
 function GlassIconCard({ icon, tone = "default", size = 56 }) {
-  const toneStyles =
-    tone === "instagram"
-      ? { accent2: "rgba(214,41,118,0.45)" }
-      : tone === "facebook"
-        ? { accent2: "rgba(24,119,242,0.45)" }
-        : tone === "tiktok"
-          ? { accent2: "rgba(255,255,255,0.30)" }
-          : tone === "youtube"
-            ? { accent2: "rgba(255,0,0,0.45)" }
-            : { accent2: "rgba(214,255,1,0.35)" };
+  const toneMap = {
+    instagram: { accent: "rgba(214,41,118,0.55)", glow: "rgba(214,41,118,0.3)" },
+    facebook:  { accent: "rgba(24,119,242,0.55)",  glow: "rgba(24,119,242,0.3)" },
+    tiktok:    { accent: "rgba(255,255,255,0.35)", glow: "rgba(255,255,255,0.15)" },
+    youtube:   { accent: "rgba(255,0,0,0.55)",     glow: "rgba(255,0,0,0.3)" },
+  };
+  const { accent, glow } = toneMap[tone] ?? { accent: "rgba(214,255,1,0.4)", glow: "rgba(214,255,1,0.2)" };
 
   return (
     <div
       className="relative flex items-center justify-center rounded-2xl"
       style={{ width: size, height: size }}
     >
-      {/* base glass fill */}
+      {/* base glass layer */}
       <div
         className="absolute inset-0 rounded-2xl"
         style={{
-          background:
-            "linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 55%, rgba(255,255,255,0.02) 100%)",
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          border: "1px solid rgba(255,255,255,0.14)",
-          boxShadow: `0 14px 32px rgba(0,0,0,0.5), 0 0 22px ${toneStyles.accent2}`,
+          background: "linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 100%)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          border: "1px solid rgba(255,255,255,0.16)",
+          boxShadow: `0 8px 32px rgba(0,0,0,0.6), 0 0 28px ${glow}, inset 0 1px 0 rgba(255,255,255,0.2)`,
         }}
       />
 
-      {/* top rim glow, tinted to brand color */}
+      {/* brand color rim glow */}
       <div
         className="absolute inset-x-0 top-0 h-1/2 rounded-t-2xl"
         style={{
-          background: `radial-gradient(60% 90% at 50% -10%, ${toneStyles.accent2} 0%, rgba(255,255,255,0.08) 40%, transparent 70%)`,
+          background: `radial-gradient(70% 100% at 50% 0%, ${accent} 0%, transparent 70%)`,
         }}
       />
 
-      {/* diagonal glass sheen */}
+      {/* sheen highlight */}
       <div
-        className="absolute inset-0 rounded-2xl"
+        className="absolute inset-0 rounded-2xl pointer-events-none"
         style={{
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.05) 45%, transparent 70%)",
+          background: "linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 40%, transparent 65%)",
           mixBlendMode: "screen",
         }}
       />
 
       {/* icon */}
-      <div className="relative z-10">{icon}</div>
+      <div className="relative z-10 drop-shadow-lg">{icon}</div>
 
-      {/* bottom dark fade for depth */}
+      {/* bottom depth shadow */}
       <div
-        className="absolute inset-x-0 bottom-0 h-1/2 rounded-b-2xl pointer-events-none"
+        className="absolute inset-x-0 bottom-0 h-2/5 rounded-b-2xl pointer-events-none"
         style={{
-          background: "linear-gradient(to top, rgba(0,0,0,0.35), transparent)",
+          background: "linear-gradient(to top, rgba(0,0,0,0.45), transparent)",
         }}
       />
     </div>
@@ -139,8 +134,33 @@ function ArcTrack() {
       className="relative w-full overflow-hidden"
       style={{ height: `${VISIBLE_HEIGHT}px` }}
     >
-      {/* Guide line at the very top of the visible window */}
-      <div className="absolute inset-x-0 top-0 h-px bg-white/10" />
+      {/* soft top fade so icons dissolve in/out smoothly */}
+      <div
+        className="absolute inset-x-0 top-0 z-10 pointer-events-none"
+        style={{
+          height: "48px",
+          background: "linear-gradient(to bottom, #15140F 0%, transparent 100%)",
+        }}
+      />
+      {/* soft bottom fade */}
+      <div
+        className="absolute inset-x-0 bottom-0 z-10 pointer-events-none"
+        style={{
+          height: "32px",
+          background: "linear-gradient(to top, #15140F 0%, transparent 100%)",
+        }}
+      />
+
+      {/* subtle arc rail glow */}
+      <div
+        className="absolute inset-x-0 pointer-events-none z-0"
+        style={{
+          bottom: "8px",
+          height: "1px",
+          background:
+            "radial-gradient(ellipse 50% 1px at 50% 50%, rgba(255,255,255,0.07) 0%, transparent 100%)",
+        }}
+      />
 
       <div
         className="absolute left-1/2"
@@ -173,15 +193,16 @@ function ArcTrack() {
                 }}
               >
                 <div
-                  className="w-16 h-16 sm:w-[60px] sm:h-[60px] md:w-14 md:h-14"
                   style={{
+                    width: 64,
+                    height: 64,
                     transform: `translate(-50%, -50%) rotate(${-angle}deg)`,
                   }}
                 >
                   <GlassIconCard
                     icon={icon.node}
                     tone={icon.tone}
-                    size="100%"
+                    size={64}
                   />
                 </div>
               </div>
@@ -272,10 +293,16 @@ function Footer() {
       <ArcTrack />
 
       {/* ---- Bottom bar ---- */}
-      <div className="border-t border-white/10 py-5 px-6">
-        <p className="text-center text-xs text-white/30">
-          © {new Date().getFullYear()} CirklX. All rights reserved.
-        </p>
+      <div className="py-6 px-6">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-white/25 tracking-wide">
+            © {new Date().getFullYear()} CirklX. All rights reserved.
+          </p>
+          <div className="flex items-center gap-1">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D6FF01] opacity-70" />
+            <span className="text-xs text-white/25 tracking-wide">Built for creators</span>
+          </div>
+        </div>
       </div>
     </section>
   );
