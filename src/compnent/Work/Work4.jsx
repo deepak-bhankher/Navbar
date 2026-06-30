@@ -69,17 +69,21 @@ function StatIcon({ type, tone = "default" }) {
   }
 }
 
-function StatPill({ label, value, icon, tone, align = "left" }) {
+function StatPill({ label, value, icon, tone, align = "left", small = false }) {
   return (
     <div
-      className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-[#0f0f0f] border border-white/10
-        px-2.5 sm:px-3 py-1.5 sm:py-2 shadow-[0_4px_18px_rgba(0,0,0,0.5)]
+      className={`inline-flex items-center gap-1 rounded-full bg-[#0f0f0f] border border-white/10
+        shadow-[0_4px_18px_rgba(0,0,0,0.5)]
+        ${small ? "px-2 py-1" : "px-2.5 sm:px-3 py-1.5 sm:py-2"}
         ${align === "right" ? "flex-row-reverse" : ""}`}
     >
       <StatIcon type={icon} tone={tone} />
-      <span className="text-[9px] sm:text-[10px] md:text-[11px] font-semibold tracking-wide text-white/80 whitespace-nowrap">
+      <span
+        className={`font-semibold tracking-wide text-white/80 whitespace-nowrap
+          ${small ? "text-[8px]" : "text-[9px] sm:text-[10px] md:text-[11px]"}`}
+      >
         {value !== undefined && (
-          <span className="text-white mr-1">{value}</span>
+          <span className="text-white mr-0.5">{value}</span>
         )}
         {label}
       </span>
@@ -171,7 +175,13 @@ function ConnectorPath({
 // Reusable center node (dot cloud + glass circle + airplane icon + label)
 // so the exact same visual appears on both the desktop mind-map and the
 // mobile stacked layout, just at different sizes.
-function CenterNode({ wrapSize = "w-[110px] h-[110px] sm:w-[140px] sm:h-[140px] md:w-[160px] md:h-[160px]", circleSize = "w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16", iconSize = 22, labelSize = "text-base sm:text-lg", dotCount = 180 }) {
+function CenterNode({
+  wrapSize = "w-[110px] h-[110px] sm:w-[140px] sm:h-[140px] md:w-[160px] md:h-[160px]",
+  circleSize = "w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16",
+  iconSize = 22,
+  labelSize = "text-base sm:text-lg",
+  dotCount = 180,
+}) {
   return (
     <div className="flex flex-col items-center">
       <div className={`relative ${wrapSize} flex items-center justify-center`}>
@@ -380,87 +390,263 @@ export default function Work4() {
         </div>
 
         {/* ====================================================
-            MOBILE (below md): vertical stacked layout.
-            The wide horizontal mind-map doesn't fit narrow screens —
-            pill text and merge points would collide. Instead: the 3
-            feed-in cards stack at the top with one animated vertical
-            glow line flowing down into the rocket, then a static line
-            continues down to a 2-column grid of the 4 result cards.
+            MOBILE: Before → After  —  single SVG coordinate
+            space so the flow path lands exactly on the TOP-CENTER
+            of each card, goes straight up, crosses horizontally
+            right behind the rocket's center, then drops straight
+            down into the top-center of the other card.
+
+            ViewBox  : 0 0 320 420
+            Badge    : cx=160  cy=52   (top-center, line passes through here)
+            Cards row: y=108 .. y=408  (height ~300)
+            Before card: x=0   w=148  -> top-center x = 74
+            After  card: x=172 w=148  -> top-center x = 246
+            Path   : 74,108 -> up -> 74,52 -> across -> 246,52 -> down -> 246,108
             ==================================================== */}
-        <div className="md:hidden relative flex flex-col items-center">
-          {/* Single continuous vertical connector line spanning the whole
-              mobile stack (top of feed-in cards -> through the rocket ->
-              down to the result cards), with one animated glow trail that
-              travels the FULL length and loops — same technique as the
-              desktop ConnectorPath, just vertical instead of horizontal.
-              This is what makes the glow keep going past the rocket
-              instead of stopping/resetting there. */}
+        <div className="md:hidden w-full">
           <svg
-            className="absolute left-1/2 -translate-x-1/2 top-0 w-[3px] h-full pointer-events-none"
-            viewBox="0 0 3 100"
-            preserveAspectRatio="none"
-            style={{ zIndex: 0 }}
+            viewBox="0 0 320 420"
+            className="w-full"
+            fill="none"
+            style={{ display: "block" }}
           >
-            <line x1="1.5" y1="0" x2="1.5" y2="100" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
-            <motion.line
-              x1="1.5"
-              y1="0"
-              x2="1.5"
-              y2="100"
+            {/* ── defs: clip so line stays inside card region ── */}
+            <defs>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* ══ FLOW PATH (drawn BEFORE the badge so the rocket sits
+                visually on top of / "samne" the crossing line) ══
+
+                Before-card top-center (74,108)
+                  -> straight up to (74,64)
+                  -> rounded corner up-and-over to (160,52)  [rocket center height]
+                  -> straight across through rocket center
+                  -> rounded corner down at (246,52)
+                  -> straight down to After-card top-center (246,108)
+            */}
+            {/* static dim base */}
+            {/* Arc radius = 18. Left: vertical-to-horizontal. Right: horizontal-to-vertical. */}
+            <path
+              d="M 74 108 L 74 70 A 18 18 0 0 1 92 52 L 228 52 A 18 18 0 0 1 246 70 L 246 108"
+              stroke="rgba(255,255,255,0.15)"
+              strokeWidth="1.5"
+              fill="none"
+            />
+            <motion.path
+              d="M 74 108 L 74 70 A 18 18 0 0 1 92 52 L 228 52 A 18 18 0 0 1 246 70 L 246 108"
               stroke={ACCENT}
-              strokeWidth="2"
+              strokeWidth="2.5"
               strokeLinecap="round"
+              strokeLinejoin="round"
               pathLength={1}
-              strokeDasharray="0.1 1"
+              strokeDasharray="0.18 1"
               initial={{ strokeDashoffset: 1 }}
               animate={{ strokeDashoffset: 0 }}
-              transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
-              style={{ filter: `drop-shadow(0 0 5px ${ACCENT})` }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              fill="none"
+              style={{ filter: `drop-shadow(0 0 7px ${ACCENT})` }}
             />
+
+            {/* ══ BADGE (top-center, drawn AFTER the path so it visually
+                covers the crossing point — line passes "behind" rocket) ══ */}
+            {/* pulse ring */}
+            <motion.circle
+              cx="160"
+              cy="52"
+              r="34"
+              stroke={ACCENT}
+              strokeWidth="1"
+              initial={{ r: 28, opacity: 0.5 }}
+              animate={{ r: 46, opacity: 0 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+            />
+            {/* glass circle */}
+            <circle
+              cx="160"
+              cy="52"
+              r="28"
+              fill="#000"
+              stroke="rgba(255,255,255,0.18)"
+              strokeWidth="1"
+              style={{ filter: "drop-shadow(0 0 18px rgba(214,255,1,0.35))" }}
+            />
+            <circle
+              cx="160"
+              cy="52"
+              r="28"
+              fill="rgba(255,255,255,0.07)"
+            />
+            {/* CirklX label */}
+            <text
+              x="160"
+              y="96"
+              textAnchor="middle"
+              fontSize="11"
+              fontWeight="700"
+              fill="white"
+              letterSpacing="1"
+            >
+              CirklX
+            </text>
+            {/* airplane icon via foreignObject centered on badge */}
+            <foreignObject x="138" y="30" width="44" height="44">
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <BsFillAirplaneEnginesFill size={20} color="#D6ff01" />
+              </div>
+            </foreignObject>
+
+            {/* ══ BEFORE card ══  x=0 y=108 w=148 h=300 */}
+            <foreignObject x="0" y="108" width="148" height="300">
+              <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                style={{
+                  height: "100%",
+                  borderRadius: 16,
+                  padding: "14px 12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 14,
+                  background:
+                    "linear-gradient(145deg,rgba(255,255,255,0.07) 0%,rgba(255,255,255,0.02) 100%)",
+                  border: "1px solid rgba(255,255,255,0.11)",
+                  backdropFilter: "blur(12px)",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 9,
+                    fontWeight: 700,
+                    letterSpacing: "0.15em",
+                    color: "rgba(255,255,255,0.38)",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Before
+                </span>
+                {LEFT_STATS.map((s) => (
+                  <div
+                    key={s.label}
+                    style={{ display: "flex", flexDirection: "column", gap: 2 }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 800,
+                        color: "#fff",
+                        lineHeight: 1,
+                      }}
+                    >
+                      {s.value}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 8,
+                        fontWeight: 600,
+                        letterSpacing: "0.12em",
+                        color: "rgba(255,255,255,0.4)",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {s.label}
+                    </span>
+                  </div>
+                ))}
+              </motion.div>
+            </foreignObject>
+
+            {/* ══ AFTER card ══  x=172 y=108 w=148 h=300 */}
+            <foreignObject x="172" y="108" width="148" height="300">
+              <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.15 }}
+                style={{
+                  height: "100%",
+                  borderRadius: 16,
+                  padding: "14px 12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 14,
+                  background:
+                    "linear-gradient(145deg,rgba(214,255,1,0.08) 0%,rgba(214,255,1,0.02) 100%)",
+                  border: "1px solid rgba(214,255,1,0.22)",
+                  backdropFilter: "blur(12px)",
+                  boxShadow: "0 0 28px rgba(214,255,1,0.07)",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 9,
+                    fontWeight: 700,
+                    letterSpacing: "0.15em",
+                    color: ACCENT,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  After
+                </span>
+                {RIGHT_STATS.map((s) => {
+                  const color =
+                    s.tone === "green"
+                      ? "#22c55e"
+                      : s.tone === "orange"
+                        ? "#f97316"
+                        : "#ef4444";
+                  return (
+                    <div
+                      key={s.label}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 20,
+                          fontWeight: 800,
+                          color,
+                          lineHeight: 1,
+                        }}
+                      >
+                        {s.value}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 8,
+                          fontWeight: 600,
+                          letterSpacing: "0.12em",
+                          color: "rgba(255,255,255,0.4)",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {s.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </motion.div>
+            </foreignObject>
           </svg>
-
-          {/* Top: feed-in cards */}
-          <div className="relative z-10 flex flex-col items-center gap-3 w-full max-w-[280px] bg-black">
-            {LEFT_STATS.map((s) => (
-              <StatPill
-                key={s.label}
-                label={s.label}
-                value={s.value}
-                icon={s.icon}
-                align="left"
-              />
-            ))}
-          </div>
-
-          <div className="h-12" />
-
-          {/* Center: same rocket + dot cloud, scaled down */}
-          <div className="relative z-10">
-            <CenterNode
-              wrapSize="w-[100px] h-[100px]"
-              circleSize="w-14 h-14"
-              iconSize={20}
-              labelSize="text-base"
-              dotCount={130}
-            />
-          </div>
-
-          <div className="h-12" />
-
-          {/* Bottom: all 4 result stats (incl. the merge "Followers" pill) in a 2x2 grid */}
-          <div className="relative z-10 grid grid-cols-2 gap-2.5 w-full max-w-[320px] bg-black">
-            <StatPill label="FOLLOWERS" value="2K+" icon="users" align="left" />
-            {RIGHT_STATS.map((s) => (
-              <StatPill
-                key={s.label}
-                label={s.label}
-                value={s.value}
-                icon={s.icon}
-                tone={s.tone}
-                align="left"
-              />
-            ))}
-          </div>
         </div>
       </div>
     </section>
