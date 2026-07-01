@@ -289,20 +289,7 @@ export default function DestinationsGrid({ onClose }) {
               </h2>
             </motion.div>
 
-            {/* Close button */}
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.92 }}
-              onClick={onClose}
-              className="flex cursor-pointer items-center gap-2 px-4 py-2 rounded-2xl border border-white/10 bg-[#111] text-white/60 text-sm font-medium hover:border-white/20 hover:text-white transition-colors duration-200 shrink-0 mt-1"
-            >
-              <X size={14} />
-              Close
-            </motion.button>
-          </div>
+            </div>
 
           {/* 4 Sections */}
           <div className="flex flex-col gap-20 sm:gap-28">
@@ -360,6 +347,23 @@ export default function DestinationsGrid({ onClose }) {
                 </div>
               </motion.div>
             ))}
+          </div>
+
+          {/* Close button — bottom right after 4th section */}
+          <div className="flex justify-end mt-14 sm:mt-16">
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.92 }}
+              onClick={onClose}
+              className="flex cursor-pointer items-center gap-2 px-4 py-2 rounded-2xl border border-white/10 bg-[#111] text-white/60 text-sm font-medium hover:border-white/20 hover:text-white transition-colors duration-200"
+            >
+              <X size={14} />
+              Close
+            </motion.button>
           </div>
         </div>
       </motion.section>
