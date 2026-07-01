@@ -68,9 +68,6 @@ const VISIBLE_HEIGHT = 130;
 const ROTATION_DURATION = 36;
 const ICON_SPACING_DEG = 90;
 
-// Glass icon card matching the Home page's GlassIconCard treatment:
-// dark frosted-glass background, top rim glow tinted to the icon's brand
-// color, diagonal glass sheen, and a soft bottom shadow for depth.
 function GlassIconCard({ icon, tone = "default", size = 56 }) {
   const toneMap = {
     instagram: { accent: "rgba(214,41,118,0.55)", glow: "rgba(214,41,118,0.3)" },

@@ -18,23 +18,34 @@ function useDarkSection() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    const NAVBAR_HEIGHT = 80;
-
     function checkSection() {
+      const nav = document.querySelector("nav");
+      const navBottom = nav ? nav.getBoundingClientRect().bottom : 70;
+      const checkY = navBottom;
+
       const darkSections = document.querySelectorAll('[data-theme="dark"]');
       let foundDark = false;
       darkSections.forEach((section) => {
         const rect = section.getBoundingClientRect();
-        if (rect.top <= NAVBAR_HEIGHT && rect.bottom >= NAVBAR_HEIGHT) {
+        if (rect.top <= checkY && rect.bottom >= checkY) {
           foundDark = true;
         }
       });
       setIsDark(foundDark);
     }
 
+    // run on scroll, resize, and immediately
     window.addEventListener("scroll", checkSection, { passive: true });
+    window.addEventListener("resize", checkSection, { passive: true });
     checkSection();
-    return () => window.removeEventListener("scroll", checkSection);
+
+    // also re-check after paint in case sections render late
+    const raf = requestAnimationFrame(checkSection);
+    return () => {
+      window.removeEventListener("scroll", checkSection);
+      window.removeEventListener("resize", checkSection);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   return isDark;
@@ -137,8 +148,12 @@ export default function Navbar() {
         <div
           className={`max-w-5xl mx-auto rounded-2xl px-5 transition-all duration-500 ${
             scrolled
-              ? "bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.25)]"
-              : "bg-white/5 backdrop-blur-sm border border-white/10"
+              ? isDark
+                ? "bg-white/5 backdrop-blur-md border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+                : "bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.25)]"
+              : isDark
+                ? "bg-white/[0.03] backdrop-blur-sm border border-white/[0.07]"
+                : "bg-white/5 backdrop-blur-sm border border-white/10"
           }`}
         >
           <div className="flex items-center justify-between h-[62px]">
