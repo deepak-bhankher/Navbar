@@ -62,7 +62,7 @@ function NavItem({ label, path, isDark }) {
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative px-2 lg:px-4 py-2 cursor-pointer"
+      className="relative px-2 lg:px-4 py-2 cursor-pointer overflow-hidden rounded-lg"
     >
       <AnimatePresence>
         {active && (
@@ -71,12 +71,29 @@ function NavItem({ label, path, isDark }) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.15 }}
-            className="absolute inset-0 rounded-lg bg-black/90"
+            className="absolute inset-0 rounded-lg backdrop-blur-md"
+            style={
+              isDark
+                ? {
+                    background: "rgba(255,255,255,0.12)",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255,255,255,0.25)",
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.35)",
+                  }
+                : {
+                    background: "rgba(0,0,0,0.07)",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
+                    border: "1px solid rgba(0,0,0,0.12)",
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6)",
+                  }
+            }
           />
         )}
       </AnimatePresence>
       <motion.span
-        animate={{ color: active ? "#D6ff01" : defaultColor }}
+        animate={{ color: active ? (isDark ? "#ffffff" : "#000000") : defaultColor }}
         transition={{ duration: 0.2 }}
         className="relative text-[13px] lg:text-sm font-medium tracking-wide whitespace-nowrap"
       >
@@ -164,10 +181,12 @@ export default function Navbar() {
                 transition={{ type: "spring", stiffness: 300, damping: 18 }}
                 className="flex items-center gap-2 cursor-pointer"
               >
-                <img
-                  src="/logo.png"
+                <motion.img
+                  src={isDark ? "/white.png" : "/black.png"}
                   alt="CirklX"
                   className="w-8 h-8 object-contain"
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
                 />
                 <motion.span
                   animate={{ color: isDark ? "#ffffff" : "#15140F" }}

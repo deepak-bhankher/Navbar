@@ -140,7 +140,7 @@ function StackingCard({ service, index, total }) {
       className="h-screen sticky top-0"
       style={{ zIndex: index + 1 }}
     >
-      <div className="h-full flex items-center justify-center px-4 sm:px-6 bg-[#F4F2ED]">
+      <div className="h-full flex items-center justify-center px-4 sm:px-6">
         <motion.div
           style={isLast ? undefined : { scale }}
           className="w-full max-w-5xl bg-white rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] overflow-hidden origin-top"
